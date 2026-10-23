@@ -1,0 +1,286 @@
+---
+import type { Sisalto } from '../data/sisalto';
+
+interface Props {
+  s: Sisalto;
+}
+const { s } = Astro.props;
+const site = Astro.site ?? new URL('https://jehkis.github.io');
+const kanoninen = new URL(s.kieli === 'fi' ? '/' : '/en/', site).href;
+const ogKuva = new URL('/kuvat/og.png', site).href;
+const ulkoinen = { target: '_blank', rel: 'noopener noreferrer' };
+---
+<!doctype html>
+<html lang={s.kieli}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{s.title}</title>
+    <meta name="description" content={s.description} />
+    <link rel="canonical" href={kanoninen} />
+    <link rel="alternate" hreflang="fi" href={new URL('/', site).href} />
+    <link rel="alternate" hreflang="en" href={new URL('/en/', site).href} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={s.title} />
+    <meta property="og:description" content={s.description} />
+    <meta property="og:url" content={kanoninen} />
+    <meta property="og:image" content={ogKuva} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#0b0d17" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="ohita" href="#projektit">{s.kieli === 'fi' ? 'Siirry sisältöön' : 'Skip to content'}</a>
+
+    <header class="yla">
+      <nav class="nav sisalto">
+        <a class="merkki" href={s.kieli === 'fi' ? '/' : '/en/'} aria-label="Joona Jehkonen">JJ<span>.</span></a>
+        <div class="nav-linkit">
+          <a href="#projektit">{s.nav.projektit}</a>
+          <a href="#osaaminen">{s.nav.osaaminen}</a>
+          <a href="#minusta">{s.nav.minusta}</a>
+          <a class="kieli" href={s.nav.vaihdaKieliUrl} hreflang={s.kieli === 'fi' ? 'en' : 'fi'} lang={s.kieli === 'fi' ? 'en' : 'fi'}>
+            {s.nav.vaihdaKieli}
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero sisalto">
+        <p class="tervehdys">{s.hero.tervehdys}</p>
+        <h1>Joona Jehkonen</h1>
+        <p class="rooli">{s.hero.rooli}</p>
+        <p class="esittely">{s.hero.esittely}</p>
+        <p class="tila"><span class="pulssi" aria-hidden="true"></span>{s.hero.tila}</p>
+        <div class="napit">
+          <a class="nappi" href="#projektit">{s.hero.cta} ↓</a>
+          <a class="nappi toissijainen" href="https://github.com/jehkis" {...ulkoinen}>
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            {s.hero.github}
+          </a>
+        </div>
+      </section>
+
+      <section id="projektit" class="osio sisalto">
+        <h2 class="osio-otsikko"><span>01</span>{s.projektitOtsikko}</h2>
+        <p class="osio-ala">{s.projektitAla}</p>
+
+        {s.projektit.map((p, i) => (
+          <article class:list={['projekti', { kaanteinen: i % 2 === 1 }]} id={p.id}>
+            <div class="projekti-teksti paljastus">
+              <p class="tyyppi">{p.tyyppi}</p>
+              <h3>{p.nimi}</h3>
+              <p class="kuvaus">{p.kuvaus}</p>
+              <ul class="kohdat">{p.kohdat.map((k) => <li>{k}</li>)}</ul>
+              <ul class="tekniikat" aria-label={s.kieli === 'fi' ? 'Tekniikat' : 'Technologies'}>
+                {p.tekniikat.map((t) => <li>{t}</li>)}
+              </ul>
+              <div class="projekti-linkit">
+                {p.linkit.map((l, j) => (
+                  <a class:list={['nappi', { toissijainen: j > 0 || p.linkit.length === 1 }]} href={l.url} {...ulkoinen}>{l.teksti} ↗</a>
+                ))}
+              </div>
+            </div>
+            <div class:list={['projekti-kuvat paljastus', { mobiili: p.mobiilikuvat, useita: !p.mobiilikuvat && p.kuvat.length > 1 }]}>
+              {p.kuvat.map((k, j) => (
+                <img src={k.src} alt={k.alt} width={k.leveys} height={k.korkeus} loading={i === 0 && j === 0 ? 'eager' : 'lazy'} decoding="async" />
+              ))}
+            </div>
+          </article>
+        ))}
+
+        <h3 class="muut-otsikko">{s.muutOtsikko}</h3>
+        <div class="muut">
+          {s.muut.map((m) => (
+            <article class="muu paljastus">
+              <h4>{m.nimi}</h4>
+              <p>{m.kuvaus}</p>
+              <ul class="tekniikat">{m.tekniikat.map((t) => <li>{t}</li>)}</ul>
+              {m.linkki && <a class="teksti-linkki" href={m.linkki.url} {...ulkoinen}>{m.linkki.teksti} ↗</a>}
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="osaaminen" class="osio sisalto">
+        <h2 class="osio-otsikko"><span>02</span>{s.osaaminenOtsikko}</h2>
+        <div class="taidot">
+          {s.osaaminen.map((o) => (
+            <div class="taitoryhma paljastus">
+              <h3>{o.ryhma}</h3>
+              <ul>{o.taidot.map((t) => <li>{t}</li>)}</ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="minusta" class="osio sisalto">
+        <h2 class="osio-otsikko"><span>03</span>{s.minustaOtsikko}</h2>
+        <div class="minusta paljastus">{s.minusta.map((k) => <p>{k}</p>)}</div>
+      </section>
+
+      <section class="yhteys sisalto paljastus">
+        <h2>{s.yhteysOtsikko}</h2>
+        <p>{s.yhteysTeksti}</p>
+        <a class="nappi iso" href="https://github.com/jehkis" {...ulkoinen}>github.com/jehkis ↗</a>
+      </section>
+    </main>
+
+    <footer class="ala sisalto">
+      <span>© {new Date().getFullYear()} Joona Jehkonen</span>
+      <span>{s.alatunniste}</span>
+    </footer>
+
+    <script>
+      // Osiot ilmestyvät näkyviin vierittäessä; ilman JavaScriptiä tai liikkeen vähennyksellä kaikki näkyy heti
+      const osat = document.querySelectorAll('.paljastus');
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+        document.documentElement.classList.add('animoi');
+        const io = new IntersectionObserver((rivit) => {
+          for (const r of rivit) {
+            if (r.isIntersecting) {
+              r.target.classList.add('nakyy');
+              io.unobserve(r.target);
+            }
+          }
+        }, { rootMargin: '0px 0px -8% 0px' });
+        osat.forEach((o) => io.observe(o));
+      }
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --tausta: #0b0d17; --tausta-2: #121527; --pinta: #161a2e; --viiva: #252a45;
+    --teksti: #eceefb; --himmea: #9197ba; --violetti: #7c5cff; --syaani: #3ee0d0; --keltainen: #ffcb05;
+    --leveys: 1120px; --sade: 14px;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0; color: var(--teksti); font: 16px/1.65 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+    background:
+      radial-gradient(900px 520px at 10% -8%, rgba(124, 92, 255, 0.22), transparent 60%),
+      radial-gradient(700px 460px at 95% 4%, rgba(62, 224, 208, 0.10), transparent 60%),
+      var(--tausta);
+    background-repeat: no-repeat;
+  }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: inherit; }
+  h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; line-height: 1.15; margin: 0; }
+  .sisalto { width: min(var(--leveys), 100% - 32px); margin-inline: auto; }
+
+  .ohita { position: absolute; left: -9999px; }
+  .ohita:focus { left: 16px; top: 12px; z-index: 50; background: var(--violetti); color: #fff; padding: 8px 14px; border-radius: 8px; }
+  :focus-visible { outline: 2px solid var(--syaani); outline-offset: 3px; border-radius: 4px; }
+
+  /* Navigaatio */
+  .yla { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(12px); background: rgba(11, 13, 23, 0.72); border-bottom: 1px solid rgba(37, 42, 69, 0.6); }
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .merkki { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px; text-decoration: none; letter-spacing: -0.02em; }
+  .merkki span { color: var(--keltainen); }
+  .nav-linkit { display: flex; align-items: center; gap: clamp(12px, 3vw, 28px); font-size: 14px; }
+  .nav-linkit a { text-decoration: none; color: var(--himmea); transition: color .15s; }
+  .nav-linkit a:hover { color: var(--teksti); }
+  .nav-linkit .kieli { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--teksti); border: 1px solid var(--viiva); padding: 4px 10px; border-radius: 999px; }
+  .nav-linkit .kieli:hover { border-color: var(--violetti); }
+
+  /* Hero */
+  .hero { padding: clamp(72px, 14vh, 140px) 0 clamp(64px, 10vh, 110px); }
+  .tervehdys { font-family: 'JetBrains Mono', monospace; color: var(--syaani); margin: 0 0 10px; font-size: 15px; }
+  .hero h1 { font-size: clamp(44px, 9vw, 92px); font-weight: 700; letter-spacing: -0.035em; }
+  .rooli { font-family: 'Space Grotesk', sans-serif; font-size: clamp(24px, 4vw, 40px); font-weight: 600; margin: 6px 0 0; letter-spacing: -0.02em;
+    background: linear-gradient(90deg, var(--violetti), var(--syaani)); -webkit-background-clip: text; background-clip: text; color: transparent; width: fit-content; }
+  .esittely { max-width: 620px; color: var(--himmea); font-size: clamp(16px, 2vw, 18px); margin: 22px 0 0; }
+  .tila { display: inline-flex; align-items: center; gap: 10px; margin: 26px 0 0; font-size: 14px; background: var(--tausta-2); border: 1px solid var(--viiva); padding: 7px 14px; border-radius: 999px; }
+  .pulssi { width: 8px; height: 8px; border-radius: 50%; background: #3ee08a; box-shadow: 0 0 0 0 rgba(62, 224, 138, 0.6); animation: pulssi 2.2s infinite; flex: none; }
+  @keyframes pulssi { 70% { box-shadow: 0 0 0 9px rgba(62, 224, 138, 0); } 100% { box-shadow: 0 0 0 0 rgba(62, 224, 138, 0); } }
+  @media (prefers-reduced-motion: reduce) { .pulssi { animation: none; } }
+  .napit { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 34px; }
+
+  .nappi { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 600; font-size: 14.5px; padding: 11px 20px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--violetti), #a35cff); color: #fff; box-shadow: 0 6px 22px rgba(124, 92, 255, 0.35); transition: transform .12s, filter .12s, box-shadow .12s; }
+  .nappi:hover { transform: translateY(-1px); filter: brightness(1.12); box-shadow: 0 8px 28px rgba(124, 92, 255, 0.5); }
+  .nappi.toissijainen { background: transparent; border: 1px solid var(--viiva); box-shadow: none; color: var(--teksti); }
+  .nappi.toissijainen:hover { border-color: var(--violetti); filter: none; }
+  .nappi svg { width: 17px; height: 17px; fill: currentColor; }
+  .nappi.iso { font-size: 16px; padding: 14px 26px; }
+
+  /* Osiot */
+  .osio { padding: clamp(48px, 8vh, 80px) 0; }
+  .osio-otsikko { font-size: clamp(30px, 5vw, 44px); letter-spacing: -0.02em; display: flex; align-items: baseline; gap: 14px; }
+  .osio-otsikko span { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--keltainen); font-weight: 500; }
+  .osio-ala { color: var(--himmea); margin: 10px 0 0; }
+
+  /* Projektit */
+  .projekti { display: grid; grid-template-columns: 1fr 1.15fr; gap: clamp(28px, 5vw, 64px); align-items: center; margin-top: clamp(56px, 9vh, 96px); }
+  .projekti.kaanteinen .projekti-teksti { order: 2; }
+  .tyyppi { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--syaani); margin: 0 0 8px; }
+  .projekti h3 { font-size: clamp(28px, 4vw, 38px); letter-spacing: -0.02em; }
+  .kuvaus { color: var(--himmea); margin: 14px 0 0; }
+  .kohdat { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: 15px; }
+  .kohdat li { position: relative; padding-left: 22px; }
+  .kohdat li::before { content: ''; position: absolute; left: 2px; top: 0.62em; width: 8px; height: 8px; border-radius: 2px; background: linear-gradient(135deg, var(--violetti), var(--syaani)); }
+  .tekniikat { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; padding: 0; list-style: none; }
+  .tekniikat li { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--teksti); background: var(--tausta-2); border: 1px solid var(--viiva); padding: 4px 10px; border-radius: 6px; }
+  .projekti-linkit { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+
+  .projekti-kuvat img { border-radius: var(--sade); border: 1px solid var(--viiva); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(124, 92, 255, 0.08); background: var(--pinta); }
+  .projekti-kuvat.useita { display: grid; }
+  .projekti-kuvat.useita img { grid-area: 1 / 1; width: 88%; }
+  .projekti-kuvat.useita img:nth-child(2) { justify-self: end; align-self: end; margin-top: 18%; transform: translateY(14%); }
+  .projekti-kuvat.mobiili { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(10px, 2vw, 18px); align-items: start; }
+  .projekti-kuvat.mobiili img { border-radius: 22px; }
+  .projekti-kuvat.mobiili img:nth-child(2) { margin-top: 12%; }
+
+  .muut-otsikko { font-size: 22px; margin-top: clamp(80px, 12vh, 120px); color: var(--himmea); font-weight: 600; }
+  .muut { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 18px; }
+  .muu { background: var(--pinta); border: 1px solid var(--viiva); border-radius: var(--sade); padding: 24px; display: flex; flex-direction: column; transition: border-color .15s; }
+  .muu:hover { border-color: rgba(124, 92, 255, 0.55); }
+  .muu h4 { font-size: 19px; }
+  .muu p { color: var(--himmea); font-size: 15px; margin: 10px 0 0; }
+  .muu .tekniikat { margin-top: 16px; }
+  .teksti-linkki { margin-top: 16px; color: var(--syaani); font-weight: 600; font-size: 14px; text-decoration: none; width: fit-content; }
+  .teksti-linkki:hover { text-decoration: underline; }
+
+  /* Osaaminen */
+  .taidot { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 32px; }
+  .taitoryhma { background: var(--pinta); border: 1px solid var(--viiva); border-radius: var(--sade); padding: 22px; }
+  .taitoryhma h3 { font-size: 13px; font-family: 'JetBrains Mono', monospace; font-weight: 500; color: var(--keltainen); text-transform: uppercase; letter-spacing: 0.08em; }
+  .taitoryhma ul { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 8px; }
+  .taitoryhma li { font-weight: 500; }
+
+  /* Minusta */
+  .minusta { max-width: 720px; margin-top: 24px; }
+  .minusta p { color: var(--himmea); font-size: 17px; margin: 0 0 16px; }
+  .minusta p:first-child { color: var(--teksti); }
+
+  /* Yhteys */
+  .yhteys { text-align: center; margin-top: clamp(40px, 8vh, 80px); padding: clamp(40px, 8vw, 72px) 24px; border-radius: 22px; border: 1px solid var(--viiva);
+    background: radial-gradient(600px 260px at 50% 0%, rgba(124, 92, 255, 0.22), transparent 70%), var(--pinta); }
+  .yhteys h2 { font-size: clamp(30px, 5vw, 44px); letter-spacing: -0.02em; }
+  .yhteys p { color: var(--himmea); max-width: 520px; margin: 12px auto 28px; }
+
+  .ala { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 40px 0 48px; color: var(--himmea); font-size: 13px; }
+
+  /* Vieritysanimaatio (vain kun JS on päällä ja liike sallittu) */
+  .animoi .paljastus { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+  .animoi .paljastus.nakyy { opacity: 1; transform: none; }
+
+  @media (max-width: 860px) {
+    .projekti { grid-template-columns: 1fr; }
+    .projekti.kaanteinen .projekti-teksti { order: 0; }
+    .projekti-kuvat { order: -1; }
+  }
+  @media (max-width: 520px) {
+    .nav-linkit a:not(.kieli) { display: none; }
+    .projekti-kuvat.useita img { width: 92%; }
+  }
+</style>
